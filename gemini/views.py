@@ -8,4 +8,6 @@ from knowlxcirclebackend.settings import GOOGLE_API_KEY
 
 
 genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel("gemini-1.0-pro")
+
 
