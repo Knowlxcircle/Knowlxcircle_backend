@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here
 class Prompt(models.Model):
-    prompt = models.CharField(max_length=200)
+    prompt = models.CharField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
