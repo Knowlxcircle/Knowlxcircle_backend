@@ -43,6 +43,10 @@ INSTALLED_APPS = [
     "gemini",
     "rest_framework",
     "corsheaders",
+    "dashboard",
+    "authentication",
+    "article",
+    "circle",
 ]
 
 MIDDLEWARE = [
