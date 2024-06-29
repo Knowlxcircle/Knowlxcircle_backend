@@ -11,3 +11,5 @@ class CircleMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = CircleMember
         fields = "__all__"
+
+        
