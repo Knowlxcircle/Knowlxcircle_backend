@@ -245,8 +245,28 @@ class SearchArticle(APIView):
                 prompt = model.generate_content("build a keyword list for searching and filtering with " + search_query + " and convert it to list with this format [keyword1, keyword2, ...]")
                 if(len(prompt.candidates) > 1):
                     prompt = prompt.candidates[0].text
-                for i in prompt.split(","):
-                    search_list.append(i.strip())                
+
+                start_index = prompt.find('[') + 1
+
+                # Step 2: Extract the relevant substring
+                keywords_str = prompt[start_index:]
+
+                # Step 3: Remove all "
+                keywords_str = keywords_str.replace('"', '')
+
+                # Step 4: Split the string based on ','
+                keywords_list = [keyword.strip() for keyword in keywords_str.split(',')]
+
+                # Remove the last element if it's empty or contains ']'
+                if keywords_list[-1].strip() in {']', ''}:
+                    keywords_list = keywords_list[:-1]
+
+                # Step 5: Remove whitespace from each element
+                keywords_list = [keyword.replace(" ", "") for keyword in keywords_list]
+
+                # Output the result
+                print(keywords_list)
+
                 prompt = Prompt.objects.create(prompt=search_query)
                 prompt_response = GeminiResponse.objects.create(prompt=prompt, response=prompt_response.text)
                 data["prompt"] = prompt.prompt
