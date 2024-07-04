@@ -82,6 +82,8 @@ class HomePage(APIView):
                 "status": 500,
                 "message": f"Internal Server Error : {e}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 
 
 

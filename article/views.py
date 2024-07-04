@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Articles, Section, Comment
 from .serializers import ArticleSerializer, SectionSerializer, CommentSerializer
+from gemini.models import Prompt, GeminiResponse
+from gemini.views import model
 
 # Create your views here.
 class HandleArticle(APIView):
@@ -231,3 +233,47 @@ class HandleComment(APIView):
                  }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+
+class SearchArticle(APIView):
+    def get(self, request):
+        try:
+            data = {}
+            search_list = []
+            search_query = request.query_params.get("query")
+            search_list.append(search_query)
+            try:
+                prompt = model.generate_content("build a keyword list for searching and filtering with " + search_query + " and convert it to list with this format [keyword1, keyword2, ...]")
+                if(len(prompt.candidates) > 1):
+                    prompt = prompt.candidates[0].text
+                for i in prompt.split(","):
+                    search_list.append(i.strip())                
+                prompt = Prompt.objects.create(prompt=search_query)
+                prompt_response = GeminiResponse.objects.create(prompt=prompt, response=prompt_response.text)
+                data["prompt"] = prompt.prompt
+                data["response"] = prompt_response.text
+                data["created_at"] = prompt_response.created_at
+            except Exception as e:
+                return Response(
+                    {
+                        "status": 500,
+                        "message": f"Internal Server Error : {e}"
+                     }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            articles = Articles.objects.filter(title__icontains=search_query)
+
+            serializer = ArticleSerializer(articles, many=True)
+            return Response(
+                {
+                    "status": 200,
+                    "message": "Success",
+                    "response": serializer.data
+                }, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "status": 500,
+                    "message": f"Internal Server Error : {e}"
+                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
