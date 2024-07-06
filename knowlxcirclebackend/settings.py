@@ -71,6 +71,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "knowlxcirclebackend.urls"
 
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
