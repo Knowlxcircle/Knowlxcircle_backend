@@ -16,7 +16,7 @@ class GenerateSearch(APIView):
         try:
             data = {}
             search_query = request.data.get("search_query")
-            prompt_response = model.generate_content(search_query)
+            prompt_response = model.generate_content(f"{search_query}")
             if(len(prompt_response.candidates) > 1):
                 prompt_response = prompt_response.candidates[0]
 

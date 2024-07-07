@@ -6,6 +6,7 @@ from .models import Articles, Section, Comment
 from .serializers import ArticleSerializer, SectionSerializer, CommentSerializer
 from gemini.models import Prompt, GeminiResponse
 from gemini.views import model
+import re
 
 # Create your views here.
 class HandleArticle(APIView):
@@ -244,9 +245,9 @@ class SearchArticle(APIView):
             try:
                 prompt = model.generate_content("build a keyword list for searching and filtering with " + search_query + " and convert it to list with this format [keyword1, keyword2, ...]")
                 if(len(prompt.candidates) > 1):
-                    prompt = prompt.candidates[0].text
+                    prompt = prompt.candidates[0]
 
-                start_index = prompt.find('[') + 1
+                start_index = prompt.text.find('[') + 1
 
                 # Step 2: Extract the relevant substring
                 keywords_str = prompt[start_index:]
@@ -290,6 +291,64 @@ class SearchArticle(APIView):
                     "response": serializer.data
                 }, status=status.HTTP_200_OK
             )
+        except Exception as e:
+            return Response(
+                {
+                    "status": 500,
+                    "message": f"Internal Server Error : {e}"
+                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+class HandleGeminiArticle(APIView):
+    def post(self, request):
+        try:
+            data = {}
+            article_query = request.query_params.get("query")
+            try:
+                prompt = model.generate_content(f"{article_query}? make the output in list format in python")
+                if(len(prompt.candidates) > 1):
+                    prompt = prompt.candidates[0]
+                list_pattern = re.compile(r'=\s*(\[[^\]]*\])', re.DOTALL)
+                match = list_pattern.search(prompt.text)
+                if match:
+                    list_string = match.group(1)
+                    
+                    # Dictionary to store the evaluated code
+                    namespace = {}
+                    
+                    # Execute the string as Python code
+                    exec(f'cake_steps = {list_string}', namespace)
+                    
+                    # Extract the list from the namespace
+                    cake_steps = namespace['cake_steps']
+                else:
+                    print("List not found in the string.")
+                
+                prompt = Prompt.objects.create(prompt=article_query)
+                prompt_response = GeminiResponse.objects.create(prompt=prompt, response=prompt_response.text)
+                article = Articles.objects.create(title=article_query, author="Gemini AI", published=False)
+                article.save()
+                
+                article_data = ArticleSerializer(article)
+                for step in cake_steps:
+                    section = Section.objects.create(article=article, body=step, order=cake_steps.index(step))
+                    section.save()
+                    section_data = SectionSerializer(section)
+                    article_data["sections"].append(section_data)
+                return Response(
+                    {
+                        "status": 200,
+                        "message": "Success",
+                        "response": article_data
+                    }, status=status.HTTP_200_OK
+                )
+                                
+            except Exception as e:
+                return Response({
+                    "status": 200,
+                    "message": "Success",
+                    "data": "Cannot generate content for the article"
+                })
         except Exception as e:
             return Response(
                 {
