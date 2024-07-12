@@ -1,0 +1,1 @@
+from knowlxcirclebackend.wsgi import application
