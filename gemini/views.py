@@ -11,7 +11,6 @@ from .serializers import PromptSerializer, GeminiResponseSerializer
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 
-
 class GETAPIKEY(APIView):
     def get(self, request):
         return Response({
@@ -21,6 +20,7 @@ class GETAPIKEY(APIView):
         }, status=status.HTTP_200_OK)
 
 class GenerateSearch(APIView):
+    
     def post(self, request):
         try:
             data = {}
@@ -92,7 +92,3 @@ class HomePage(APIView):
                 "message": f"Internal Server Error : {e}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
-
-
-

@@ -18,6 +18,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 load_dotenv()
 from datetime import timedelta
+import newrelic
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,9 +80,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = "knowlxcirclebackend.urls"
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -101,6 +99,11 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://knowlxcircleapi.azurewebsites.net",
+    "http://localhost:8000"
 ]
 
 WSGI_APPLICATION = "knowlxcirclebackend.wsgi.application"
@@ -186,7 +189,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://localhost:5173',
     'https://knowlxcircleapi.azurewebsites.net',
     'https://knowlxcirclebackend-production.up.railway.app'
 ]
+
+# NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program $python manage.py runserver

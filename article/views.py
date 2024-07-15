@@ -240,7 +240,7 @@ class SearchArticle(APIView):
         try:
             data = {}
             search_list = []
-            search_query = request.query_params.get("query")
+            search_query = request.data.get("query")
             search_list.append(search_query)
             try:
                 prompt = model.generate_content("build a keyword list for searching and filtering with " + search_query + " and convert it to list with this format [keyword1, keyword2, ...]")
@@ -302,38 +302,62 @@ class SearchArticle(APIView):
 class HandleGeminiArticle(APIView):
     def post(self, request):
         try:
-            data = {}
-            article_query = request.query_params.get("query")
+            article_query = request.data.get("query")
+
+            # Generate the content from the model
             try:
-                prompt = model.generate_content(f"{article_query}? make the output in list format in python")
-                if(len(prompt.candidates) > 1):
-                    prompt = prompt.candidates[0]
+                query_prompt = f"{article_query}? make the output in list format in python"
+                print(query_prompt)
+                generated_prompt = model.generate_content(query_prompt)
+
+                # Select the first candidate if there are multiple
+                if len(generated_prompt.candidates) > 1:
+                    generated_text = generated_prompt.candidates[0].text
+                else:
+                    generated_text = generated_prompt.text
+
+                # Regular expression to find the list in the generated text
                 list_pattern = re.compile(r'=\s*(\[[^\]]*\])', re.DOTALL)
-                match = list_pattern.search(prompt.text)
+                match = list_pattern.search(generated_text)
+
+                # Initialize cake_steps
+                cake_steps = []
+
                 if match:
                     list_string = match.group(1)
                     
                     # Dictionary to store the evaluated code
                     namespace = {}
                     
-                    # Execute the string as Python code
-                    exec(f'cake_steps = {list_string}', namespace)
-                    
-                    # Extract the list from the namespace
-                    cake_steps = namespace['cake_steps']
+                    # Execute the string as Python code safely
+                    try:
+                        exec(f'cake_steps = {list_string}', namespace)
+                        cake_steps = namespace['cake_steps']
+                        print(cake_steps)
+                    except Exception as e:
+                        print(f"Error executing the code: {e}")
                 else:
                     print("List not found in the string.")
-                
+
+            # Create and save the prompt object
                 prompt = Prompt.objects.create(prompt=article_query)
-                prompt_response = GeminiResponse.objects.create(prompt=prompt, response=prompt_response.text)
+                prompt.save()
+                # Create and save the prompt response object
+                prompt_response = GeminiResponse.objects.create(prompt=prompt, response=generated_text)
+                prompt_response.save()
+                # Create and save the article object
                 article = Articles.objects.create(title=article_query, author="Gemini AI", published=False)
                 article.save()
-                
-                article_data = ArticleSerializer(article)
-                for step in cake_steps:
-                    section = Section.objects.create(article=article, body=step, order=cake_steps.index(step))
+
+                # Serialize the article data
+                article_data = ArticleSerializer(article).data
+                article_data["sections"] = []
+
+                # Create and save sections based on cake_steps
+                for index, step in enumerate(cake_steps):
+                    section = Section.objects.create(article=article, body=step, order=index)
                     section.save()
-                    section_data = SectionSerializer(section)
+                    section_data = SectionSerializer(section).data
                     article_data["sections"].append(section_data)
                 return Response(
                     {
@@ -345,10 +369,40 @@ class HandleGeminiArticle(APIView):
                                 
             except Exception as e:
                 return Response({
+                    "status": 500,
+                    "message": "Failed",
+                    "data": "Cannot generate content for the article"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response(
+                {
+                    "status": 500,
+                    "message": f"Internal Server Error : {e}"
+                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+class HandleFullArticle(APIView):
+    def get(self, request, id):
+        try:
+            article = Articles.objects.get(id=id)
+            article_data = ArticleSerializer(article).data
+            sections = Section.objects.filter(article=article)
+            comments = Comment.objects.filter(article=article)
+            article_data["sections"] = []
+            article_data["comments"] = []
+            for section in sections:
+                section_data = SectionSerializer(section).data
+                article_data["sections"].append(section_data)
+            for comment in comments:
+                comment_data = CommentSerializer(comment).data
+                article_data["comments"].append(comment_data)
+            return Response(
+                {
                     "status": 200,
                     "message": "Success",
-                    "data": "Cannot generate content for the article"
-                })
+                    "response": article_data
+                }, status=status.HTTP_200_OK
+            )
         except Exception as e:
             return Response(
                 {
