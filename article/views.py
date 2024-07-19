@@ -390,12 +390,48 @@ class HandleFullArticle(APIView):
             comments = Comment.objects.filter(article=article)
             article_data["sections"] = []
             article_data["comments"] = []
-            for section in sections:
+            sorted_sections = sorted(sections, key=lambda x: x.order)
+            for section in sorted_sections:
                 section_data = SectionSerializer(section).data
                 article_data["sections"].append(section_data)
             for comment in comments:
                 comment_data = CommentSerializer(comment).data
                 article_data["comments"].append(comment_data)
+            return Response(
+                {
+                    "status": 200,
+                    "message": "Success",
+                    "response": article_data
+                }, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "status": 500,
+                    "message": f"Internal Server Error : {e}"
+                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+class GetArticles(APIView):
+    def get(self, request):
+        try:
+            articles = Articles.objects.all()
+            article_data = []
+            for article in articles:
+                article_dict = ArticleSerializer(article).data
+                sections = Section.objects.filter(article=article)
+                comments = Comment.objects.filter(article=article)
+                article_dict["sections"] = []
+                article_dict["comments"] = []
+                sorted_sections = sorted(sections, key=lambda x: x.order)
+                for section in sorted_sections:
+                    section_data = SectionSerializer(section).data
+                    article_dict["sections"].append(section_data)
+                for comment in comments:
+                    comment_data = CommentSerializer(comment).data
+                    article_dict["comments"].append(comment_data)
+                if len(article_dict["sections"]) != 0:
+                    article_data.append(article_dict)
             return Response(
                 {
                     "status": 200,
