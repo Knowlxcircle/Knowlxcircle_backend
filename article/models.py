@@ -27,3 +27,23 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.title
+    
+class ArticleStamp(models.Model):
+    article = models.ForeignKey(Articles, on_delete=models.CASCADE)
+    count_view = models.IntegerField(default=0)
+    count_comment = models.IntegerField(default=0)
+    time_view = models.DateTimeField(auto_now=True)
+    time_exit = models.DateTimeField(auto_now=True)
+    visited_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.title
+    
+class ArticleSentiment(models.Model):
+    article = models.ForeignKey(Articles, on_delete=models.CASCADE)
+    sentiment = models.CharField(max_length=50, default="neutral", choices=[("positive", "positive"), ("negative", "negative"), ("neutral", "neutral")])
+    score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.title

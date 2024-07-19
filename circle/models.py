@@ -18,3 +18,12 @@ class CircleMember(models.Model):
 
     def __str__(self):
         return self.role
+    
+class MemberSentiment(models.Model):
+    circle = models.ForeignKey(Circle, on_delete=models.CASCADE)
+    sentiment = models.CharField(max_length=50)
+    score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.sentiment

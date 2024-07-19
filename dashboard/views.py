@@ -22,3 +22,15 @@ class HandleDashboard(APIView):
                 "status": 500,
                 "message": f"Internal Server Error : {e}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+class GetDashboard(APIView):
+    def get(self, request):
+        try:
+            pass
+            
+            
+        except Exception as e:
+            return Response({
+                "status": 500,
+                "message": f"Internal Server Error : {e}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
