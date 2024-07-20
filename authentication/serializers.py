@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, SocialMedia
+from .models import Member, SocialMedia
 
 # myapp/serializers.py
 
