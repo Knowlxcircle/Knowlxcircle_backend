@@ -18,6 +18,15 @@ class Section(models.Model):
 
     def __str__(self):
         return self.title
+    
+class ImageArticle(models.Model):
+    article = models.ForeignKey(Articles, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="images/")
+    caption = models.CharField(max_length=100)
+    order = models.IntegerField()
+
+    def __str__(self):
+        return self.title
 
 class Comment(models.Model):
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
@@ -47,3 +56,4 @@ class ArticleSentiment(models.Model):
     
     def __str__(self):
         return self.title
+    
