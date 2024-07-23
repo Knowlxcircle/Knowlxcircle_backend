@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     occupation = models.CharField(max_length=50)
-    bio = models.TextField()
+    bio = models.TextField(default="")
 
 class SocialMedia(models.Model):
     user = models.ForeignKey(Member, on_delete=models.CASCADE)
