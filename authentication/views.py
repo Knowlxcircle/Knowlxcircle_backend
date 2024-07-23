@@ -126,15 +126,17 @@ class RegisterMember(APIView):
             bio = request.data.get("bio")
             user = User.objects.create_user(username=username, password=password, email=email)
             member = Member.objects.create(user=user, occupation=occupation, bio=bio)
+            user.save()
+            member.save()
             return Response(
                 {
-                    "status": 200,
+                    "status": 201,
                     "message": "Success",
                     "response": {
                         "user": user,
                         "member": member
                     }
-                }, status=status.HTTP_200_OK
+                }, status=status.HTTP_201_CREATED
             )
         except Exception as e:
             return Response(
