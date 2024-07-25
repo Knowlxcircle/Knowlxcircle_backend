@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import GenerateSearch, HomePage, GETAPIKEY
+from .views import GenerateSearch, HomePage
 
 app_name = "gemini"
 urlpatterns = [
