@@ -11,13 +11,13 @@ from .serializers import PromptSerializer, GeminiResponseSerializer
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 
-class GETAPIKEY(APIView):
-    def get(self, request):
-        return Response({
-            "status": 200,
-            "message": "Success",
-            "response": GOOGLE_API_KEY
-        }, status=status.HTTP_200_OK)
+# class GETAPIKEY(APIView):
+#     def get(self, request):
+#         return Response({
+#             "status": 200,
+#             "message": "Success",
+#             "response": GOOGLE_API_KEY
+#         }, status=status.HTTP_200_OK)
 
 class GenerateSearch(APIView):
     
