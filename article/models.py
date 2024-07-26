@@ -1,5 +1,5 @@
 from django.db import models
-
+from circle.models import Circle
 # Create your models here.
 class Articles(models.Model):
     title = models.CharField(max_length=100)
@@ -17,7 +17,7 @@ class Section(models.Model):
     order = models.IntegerField()
 
     def __str__(self):
-        return self.title
+        return self.article.title
     
 class ImageArticle(models.Model):
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
@@ -26,7 +26,7 @@ class ImageArticle(models.Model):
     order = models.IntegerField()
 
     def __str__(self):
-        return self.title
+        return self.caption
 
 class Comment(models.Model):
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
@@ -35,7 +35,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.title
+        return self.author
     
 class ArticleStamp(models.Model):
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
@@ -46,7 +46,7 @@ class ArticleStamp(models.Model):
     visited_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return self.title
+        return self.article.title
     
 class ArticleSentiment(models.Model):
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
@@ -55,5 +55,11 @@ class ArticleSentiment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return self.title
+        return self.article.title
     
+class ArticleCircleAssociate(models.Model):
+    Article = models.ForeignKey(Articles, on_delete=models.CASCADE)
+    Circle = models.ForeignKey(Circle, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.Article.title
