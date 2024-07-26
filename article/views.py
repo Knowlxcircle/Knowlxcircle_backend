@@ -2,11 +2,12 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Articles, Section, Comment
+from .models import Articles, Section, Comment, ArticleSentiment, ArticleStamp
 from .serializers import ArticleSerializer, SectionSerializer, CommentSerializer
 from gemini.models import Prompt, GeminiResponse
 from gemini.views import model
 import re
+import ast
 
 # Create your views here.
 class HandleArticle(APIView):
@@ -30,7 +31,7 @@ class HandleArticle(APIView):
             )
         
     def post(self, request):
-        try:
+        # try:
             article_title = request.data.get("title")
             article_author = request.data.get("author")
             article_published = request.data.get("published")
@@ -38,6 +39,7 @@ class HandleArticle(APIView):
             article.save()
 
             response_data = {}
+            response_data["id"] = article.id
             response_data["title"] = article.title
             response_data["author"] = article.author
 
@@ -46,13 +48,13 @@ class HandleArticle(APIView):
                 "message": "Success",
                 "response": response_data
             }, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(
-                {
-                    "status": 500,
-                    "message": f"Internal Server Error : {e}"
-                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        # except Exception as e:
+        #     return Response(
+        #         {
+        #             "status": 500,
+        #             "message": f"Internal Server Error : {e}"
+        #          }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        #     )
 
     def put(self, request):
         try:
@@ -65,6 +67,8 @@ class HandleArticle(APIView):
             article.author = article_author
             article.published = article_published
             article.save()
+            article_stamp = ArticleStamp.objects.create(article=article)
+            article_stamp.save()
 
             response_data = {}
             response_data["title"] = article.title
@@ -104,7 +108,7 @@ class HandleSection(APIView):
             )
         
     def post(self, request):
-        try:
+        # try:
             article_id = request.data.get("article_id")
             section_body = request.data.get("body")
             section_order = request.data.get("order")
@@ -122,13 +126,13 @@ class HandleSection(APIView):
                 "message": "Success",
                 "response": response_data
             }, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(
-                {
-                    "status": 500,
-                    "message": f"Internal Server Error : {e}"
-                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        # except Exception as e:
+        #     return Response(
+        #         {
+        #             "status": 500,
+        #             "message": f"Internal Server Error : {e}"
+        #          }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        #     )
     
     # when user wants to change the order of the sections or update the body of the section
     def put(self, request):
@@ -306,8 +310,8 @@ class HandleGeminiArticle(APIView):
 
             # Generate the content from the model
             try:
-                query_prompt = f"{article_query}? make the output in list format in python"
-                print(query_prompt)
+                query_prompt = f"{article_query}, convert your answer in list format like in python please"
+                # print(query_prompt)
                 generated_prompt = model.generate_content(query_prompt)
 
                 # Select the first candidate if there are multiple
@@ -315,29 +319,41 @@ class HandleGeminiArticle(APIView):
                     generated_text = generated_prompt.candidates[0].text
                 else:
                     generated_text = generated_prompt.text
+                # print(generated_text)
 
                 # Regular expression to find the list in the generated text
-                list_pattern = re.compile(r'=\s*(\[[^\]]*\])', re.DOTALL)
+                list_pattern = re.compile(r'=\s*(\[[\s\S]*?\])', re.DOTALL)
                 match = list_pattern.search(generated_text)
 
                 # Initialize cake_steps
                 cake_steps = []
+                # print("Match")
+                # print(match)
 
                 if match:
                     list_string = match.group(1)
-                    
+                    try :
+                        list_ast = ast.literal_eval(list_string)
+                    except Exception as e:
+                        return Response({
+                        "status": 500,
+                        "message": "Failed",
+                        "data": "Cannot generate content for the article"
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                     # Dictionary to store the evaluated code
                     namespace = {}
                     
                     # Execute the string as Python code safely
                     try:
-                        exec(f'cake_steps = {list_string}', namespace)
+                        exec(f'cake_steps = {list_ast}', namespace)
                         cake_steps = namespace['cake_steps']
                         print(cake_steps)
                     except Exception as e:
                         print(f"Error executing the code: {e}")
                 else:
                     print("List not found in the string.")
+                    exec(f'cake_steps = {generated_text}', namespace)
+                    cake_steps = namespace['cake_steps']
 
             # Create and save the prompt object
                 prompt = Prompt.objects.create(prompt=article_query)
@@ -397,6 +413,12 @@ class HandleFullArticle(APIView):
             for comment in comments:
                 comment_data = CommentSerializer(comment).data
                 article_data["comments"].append(comment_data)
+            article_stamp, created = ArticleStamp.objects.get_or_create(article=article)
+            if not created:
+                article_stamp.count_view += 1
+            else:
+                article_stamp.count_view = 1
+            article_stamp.save()
             return Response(
                 {
                     "status": 200,

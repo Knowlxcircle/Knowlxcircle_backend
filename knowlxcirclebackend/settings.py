@@ -120,6 +120,9 @@ DATABASES = {
             "PASSWORD": os.environ.get("DBPASSWORD"),
             "HOST": os.environ.get("DBHOST"),
             "PORT": os.environ.get("DBPORT"),
+            "OPTIONS": {
+            "sslmode": "require",  # Change this if needed
+        },
         }
     }
 
