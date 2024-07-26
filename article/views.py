@@ -304,6 +304,25 @@ class SearchArticle(APIView):
             )
         
 class HandleGeminiArticle(APIView):
+    def delete(self, request, id):
+        try:
+            article = Articles.objects.get(id=id)
+            article.delete()
+            return Response(
+                {
+                    "status": 200,
+                    "message": "Success",
+                    "response": "Article deleted successfully"
+                }, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "status": 500,
+                    "message": f"Internal Server Error : {e}"
+                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
     def post(self, request):
         try:
             article_query = request.data.get("query")
