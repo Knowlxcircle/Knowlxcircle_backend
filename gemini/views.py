@@ -91,4 +91,49 @@ class HomePage(APIView):
                 "status": 500,
                 "message": f"Internal Server Error : {e}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+class ChatPage(APIView):
+    def post(self, request):
+        try:
+            data = {}
+            chat_query = request.data.get("chat_query")
+            prompt_response = model.generate_content(f"{chat_query}")
+            if(len(prompt_response.candidates) > 1):
+                prompt_response = prompt_response.candidates[0]
+            prompt = Prompt.objects.create(prompt=chat_query)
+            gemini_response = GeminiResponse.objects.create(prompt=prompt, response=prompt_response.text)
+            data["prompt"] = prompt.prompt
+            data["response"] = prompt_response.text
+            data["created_at"] = gemini_response.created_at
+            return Response({
+                "status": 200,
+                "message": "Success",
+                "response": data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": 500,
+                "message": f"Internal Server Error : {e}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    def get(self, request):
+        try:
+            data = []
+            response = GeminiResponse.objects.all().order_by("-created_at")
+            for res in response:
+                data.append({
+                    "prompt": res.prompt.prompt,
+                    "response": res.response,
+                    "created_at": res.created_at
+                })
+            return Response({
+                "status": 200,
+                "message": "Success",
+                "response": data
+            }, status=status.HTTP)
+        except Exception as e:
+            return Response({
+                "status": 500,
+                "message": f"Internal Server Error : {e}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
