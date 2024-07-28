@@ -3,6 +3,8 @@ from .models import Dashboard
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from gemini.models import GeminiResponse, Prompt
+from article.models import Articles, ArticleSentiment, Comment
 
 
 # Create your views here.
