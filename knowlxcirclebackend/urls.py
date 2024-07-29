@@ -18,10 +18,22 @@ Including another URLconf
 from django.http import HttpResponse
 from django.contrib import admin
 from django.urls import path, include
+from django.http import HttpResponse
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import TemplateView
+import markdown
+from django.shortcuts import render
+
+def markdown_view(request):
+    with open('README.md', 'r') as file:
+        content = file.read()
+    html_content = markdown.markdown(content)
+    return HttpResponse(html_content)
 
 
 urlpatterns = [
-    path("", lambda request: HttpResponse("Hello, world")),
+    path("", markdown_view, name="home"),
     path("admin/", admin.site.urls),
     path("api/v1/gemini/", include("gemini.urls")),
     path("api/v1/dashboard/", include("dashboard.urls")),
