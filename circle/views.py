@@ -36,10 +36,10 @@ class CreateCircle(APIView):
             data["id"] = circle.id
             data["name"] = circle.name
             return Response({
-                "status": 200,
-                "message": "Success",
+                "status": 201,
+                "message": "Created",
                 "response": data
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({
                 "status": 500,

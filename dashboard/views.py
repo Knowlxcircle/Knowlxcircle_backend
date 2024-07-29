@@ -37,18 +37,21 @@ class GetDashboard(APIView):
         else:
             response = model.generate_content(f"between positive and negative sentiment, what is the sentiment of {title}")
             response = response.text
+            data[id] = response
             return response
             
     def article_explain_gemini(self, ai_explain):
         if self.ai_explain_response != "":
             return self.ai_explain_response
         response = model.generate_content(f"explain {ai_explain}")
+        self.ai_explain_response = response.text
         return response.text
 
     def article_recommendation_gemini(self, ai_recommendation):
         if self.ai_recommendation != "":
             return self.ai_recommendation
         response = model.generate_content(f"recommend me an article based on {ai_recommendation} views")
+        self.ai_recommendation = response.text
         return response.text
             
     def get(self, request):
