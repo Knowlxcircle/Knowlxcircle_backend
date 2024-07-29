@@ -31,7 +31,7 @@ class HandleArticle(APIView):
             )
         
     def post(self, request):
-        # try:
+        try:
             article_title = request.data.get("title")
             article_author = request.data.get("author")
             article_published = request.data.get("published")
@@ -44,17 +44,17 @@ class HandleArticle(APIView):
             response_data["author"] = article.author
 
             return Response({
-                "status": 200,
-                "message": "Success",
+                "status": 201,
+                "message": "Created",
                 "response": response_data
-            }, status=status.HTTP_200_OK)
-        # except Exception as e:
-        #     return Response(
-        #         {
-        #             "status": 500,
-        #             "message": f"Internal Server Error : {e}"
-        #          }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        #     )
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(
+                {
+                    "status": 500,
+                    "message": f"Internal Server Error : {e}"
+                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def put(self, request):
         try:
@@ -108,7 +108,7 @@ class HandleSection(APIView):
             )
         
     def post(self, request):
-        # try:
+        try:
             article_id = request.data.get("article_id")
             section_body = request.data.get("body")
             section_order = request.data.get("order")
@@ -126,13 +126,13 @@ class HandleSection(APIView):
                 "message": "Success",
                 "response": response_data
             }, status=status.HTTP_200_OK)
-        # except Exception as e:
-        #     return Response(
-        #         {
-        #             "status": 500,
-        #             "message": f"Internal Server Error : {e}"
-        #          }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        #     )
+        except Exception as e:
+            return Response(
+                {
+                    "status": 500,
+                    "message": f"Internal Server Error : {e}"
+                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
     # when user wants to change the order of the sections or update the body of the section
     def put(self, request):
@@ -396,10 +396,10 @@ class HandleGeminiArticle(APIView):
                     article_data["sections"].append(section_data)
                 return Response(
                     {
-                        "status": 200,
-                        "message": "Success",
+                        "status": 201,
+                        "message": "Created",
                         "response": article_data
-                    }, status=status.HTTP_200_OK
+                    }, status=status.HTTP_201_CREATED
                 )
                                 
             except Exception as e:
