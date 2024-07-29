@@ -7,8 +7,14 @@
   - [Gemini](#gemini)
     - [Home Page](#1-home-page)
     - [Chatbot Page or Ask Page](#2-chatbot-page-or-ask-page)
+    - [Article Built by Gemini](#3-article-built-by-gemini)
+
   - [Articles](#articles)
     - [Articles Page](#1-articles-page)
+    - [Create Article](#2-create-article)
+  - [Circles](#circles)
+    - [Create Circle](#1-create-circle)
+    - [Get All Circle](#2-get-all-circle)
 
 ## Introduction
 This is the API documentation for the Knowlxcircle project. The API is built using the Django Rest Framework. The API is used to interact with the Knowlxcircle database. The API is used to create, read, update and delete data from the database. 
