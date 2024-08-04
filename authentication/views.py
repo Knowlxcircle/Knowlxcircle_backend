@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -32,6 +32,7 @@ class LoginView(APIView):
                     }, status=status.HTTP_401_UNAUTHORIZED
                 )
             member = Member.objects.get(user=user)
+            login(request, user)
 
             refresh = RefreshToken.for_user(member.user)
             return Response(
@@ -58,7 +59,9 @@ class LogoutView(APIView):
         try:
             refresh = request.data.get("refresh")
             token = RefreshToken(refresh)
+            
             token.blacklist()
+            logout(request)
             return Response(
                 {
                     "status": 200,
