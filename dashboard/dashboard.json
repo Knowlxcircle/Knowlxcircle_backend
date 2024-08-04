@@ -1,0 +1,44 @@
+{
+  "articles": [
+    {
+      "title": "How to get visa in foreign countries",
+      "id": 11,
+      "description": "Gather the necessary documents, including: passport, visa application form, recent passport-sized photos, proof of financial means, proof of onward travel, and any other supporting documents required by the embassy or consulate.",
+      "count_view": 2,
+      "sentiment": "neutral"
+    },
+    {
+      "title": "Hello",
+      "id": 21,
+      "description": "How",
+      "count_view": 20,
+      "sentiment": "neutral"
+    },
+    {
+      "title": "How to make a cake",
+      "id": 24,
+      "description": "Flour",
+      "count_view": 1,
+      "sentiment": "neutral"
+    },
+    {
+      "title": "How to build a sand castle",
+      "id": 25,
+      "description": "sand",
+      "count_view": 1,
+      "sentiment": "neutral"
+    },
+    {
+      "title": "tttt",
+      "id": 29,
+      "description": "gfgfgf",
+      "count_view": 1,
+      "sentiment": "neutral"
+    }
+  ],
+  "explain": "**Gather the necessary documents**\n\n**1. Passport**\n\n* Original passport with at least 6 months of validity beyond the intended stay\n* Copy of passport biodata page\n\n**2. Visa application form**\n\n* Completed and signed visa application form\n* May be obtained from the embassy or consulate website or in person\n\n**3. Recent passport-sized photos**\n\n* 2-4 recent passport-sized photos meeting the embassy's or consulate's requirements\n* Typically 2\" x 2\" (5 cm x 5 cm) in size, taken against a white background\n\n**4. Proof of financial means**\n\n* Bank statements showing sufficient funds to cover travel and living expenses\n* Proof of employment or income\n* Sponsorship letter from a host in the destination country (if applicable)\n\n**5. Proof of onward travel**\n\n* Airline ticket or booking confirmation showing the applicant's departure from the destination country\n* Proof of onward travel to a third country (if applicable)\n\n**6. Additional supporting documents**\n\n* Proof of accommodation in the destination country (hotel reservation, Airbnb confirmation)\n* Travel itinerary\n* Letter of invitation from a contact in the destination country (if applicable)\n* Medical certificate (if required for certain types of visas)\n* Proof of health insurance (if required for certain types of visas)\n* Criminal record check (if required for certain types of visas)\n\n**Additional tips:**\n\n* Check the embassy or consulate website for specific requirements for the type of visa being applied for.\n* Make copies of all submitted documents for your records.\n* Submit the application in a timely manner to allow for processing time.\n* Be prepared to provide additional information or documentation if requested by the embassy or consulate.",
+  "recommendation": "**Article: The Five Perspectives on Employee Motivation**\n\n**View 1: Maslow's Hierarchy of Needs Theory**\n\n* Focuses on the hierarchical arrangement of human needs, from basic physiological necessities to self-actualization.\n* Argues that employees are motivated to satisfy their needs and strive for higher-level ones.\n\n**View 2: Herzberg's Two-Factor Theory**\n\n* Distinguishes between \"hygiene factors\" (e.g., salary, working conditions) that prevent dissatisfaction and \"motivators\" (e.g., recognition, job enrichment) that drive satisfaction and motivation.\n\n**View 3: Expectancy Theory**\n\n* Proposes that employee motivation is influenced by their perceived expectations, such as the likelihood that effort will lead to performance and performance will result in desired rewards.\n\n**View 4: Goal Theory**\n\n* States that specific, challenging goals can motivate employees to achieve higher performance levels.\n* Emphasizes the importance of goal clarity, feedback, and reinforcement.\n\n**View 5: Reinforcement Theory**\n\n* Argues that employees are more likely to repeat behaviors that are positively reinforced (e.g., praise, promotions) and avoid those that are negatively reinforced (e.g., criticism, demotions).\n* Highlights the role of rewards and punishments in shaping behavior.\n\n**Conclusion:**\n\nThis article provides a comprehensive overview of five key theories on employee motivation. By understanding these different perspectives, organizations can tailor their motivational strategies to meet the specific needs and motivations of their workforce.",
+  "views": 25,
+  "sentiment": "neutral",
+  "count": 5
+}
