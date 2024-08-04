@@ -15,7 +15,7 @@ jobs:
       DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DBNAME: "knowlxcircle_db"
-      DBHOST: "sga.domcloud.co"
+      DBHOST: "68.183.191.223"
       DBUSER: "knowlxcircle"
       DBPASSWORD: ${{ secrets.DBPASSWORD }}
       DBPORT: 5432
@@ -63,7 +63,7 @@ jobs:
       DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DBNAME: "knowlxcircle_db"
-      DBHOST: "sga.domcloud.co"
+      DBHOST: "68.183.191.223"
       DBUSER: "knowlxcircle"
       DBPASSWORD: ${{ secrets.DBPASSWORD }}
       DBPORT: 5432
@@ -95,7 +95,7 @@ jobs:
            DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
            SECRET_KEY: ${{ secrets.SECRET_KEY }}
            DBNAME: "knowlxcircle_db"
-           DBHOST: "sga.domcloud.co"
+           DBHOST: "68.183.191.223"
            DBUSER: "knowlxcircle"
            DBPASSWORD: ${{ secrets.DBPASSWORD }}
            DBPORT: 5432
