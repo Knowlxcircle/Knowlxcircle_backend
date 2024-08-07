@@ -6,18 +6,27 @@ from rest_framework.response import Response
 from .models import Prompt, GeminiResponse
 from rest_framework import status
 from .serializers import PromptSerializer, GeminiResponseSerializer
+import os
 
 
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 
-# class GETAPIKEY(APIView):
-#     def get(self, request):
-#         return Response({
-#             "status": 200,
-#             "message": "Success",
-#             "response": GOOGLE_API_KEY
-#         }, status=status.HTTP_200_OK)
+class GETAPIKEY(APIView):
+    def get(self, request):
+        data_postgres = {
+            "DBNAME" : os.environ.get("DBNAME"),
+            "DBUSER" : os.environ.get("DBUSER"),
+            "DBPASSWORD" : os.environ.get("DBPASSWORD"),
+            "DBHOST" : os.environ.get("DBHOST"),
+            "DBPORT" : os.environ.get("DBPORT")
+        }
+        
+        return Response({
+            "status": 200,
+            "message": "Success",
+            "response": data_postgres
+        }, status=status.HTTP_200_OK)
 
 class GenerateSearch(APIView):
     
