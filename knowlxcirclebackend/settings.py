@@ -157,15 +157,24 @@ WSGI_APPLICATION = "knowlxcirclebackend.wsgi.application"
 DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": os.environ.get("DBNAME"),
-            "USER": os.environ.get("DBUSER"),
-            "PASSWORD": os.environ.get("DBPASSWORD"),
-            "HOST": os.environ.get("DBHOST"),
-            "PORT": os.environ.get("DBPORT"),
+            "NAME": os.getenv("DBNAME"),
+            "USER": os.getenv("DBUSER"),
+            "PASSWORD": os.getenv("DBPASSWORD"),
+            "HOST": os.getenv("DBHOST"),
+            "PORT": os.getenv("DBPORT"),
         }
     }
 
-
+# DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.postgresql_psycopg2",
+#             "NAME": os.environ.get("DBNAME"),
+#             "USER": os.environ.get("DBUSER"),
+#             "PASSWORD": os.environ.get("DBPASSWORD"),
+#             "HOST": os.environ.get("DBHOST"),
+#             "PORT": os.environ.get("DBPORT"),
+#         }
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
