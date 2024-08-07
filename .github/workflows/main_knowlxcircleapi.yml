@@ -18,8 +18,8 @@ jobs:
       DBHOST: "knowlxcircledb.postgres.database.azure.com"
       DBUSER: "knowlxcircle"
       DBPASSWORD: ${{ secrets.DBPASSWORD }}
-      DBPORT: 5432
-      
+      DBPORT: "5432"
+
     steps:
       - uses: actions/checkout@v4
 
