@@ -14,8 +14,8 @@ jobs:
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      DBNAME: "knowlxcircle_db"
-      DBHOST: "68.183.191.223"
+      DBNAME: "postgres"
+      DBHOST: "knowlxcircledb.postgres.database.azure.com"
       DBUSER: "knowlxcircle"
       DBPASSWORD: ${{ secrets.DBPASSWORD }}
       DBPORT: 5432
@@ -62,8 +62,8 @@ jobs:
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      DBNAME: "knowlxcircle_db"
-      DBHOST: "68.183.191.223"
+      DBNAME: "postgres"
+      DBHOST: "knowlxcircledb.postgres.database.azure.com"
       DBUSER: "knowlxcircle"
       DBPASSWORD: ${{ secrets.DBPASSWORD }}
       DBPORT: 5432
@@ -94,8 +94,8 @@ jobs:
            GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
            DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
            SECRET_KEY: ${{ secrets.SECRET_KEY }}
-           DBNAME: "knowlxcircle_db"
-           DBHOST: "68.183.191.223"
+           DBNAME: "postgres"
+           DBHOST: "knowlxcircledb.postgres.database.azure.com"
            DBUSER: "knowlxcircle"
            DBPASSWORD: ${{ secrets.DBPASSWORD }}
            DBPORT: 5432
