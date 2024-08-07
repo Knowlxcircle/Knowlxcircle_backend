@@ -18,7 +18,6 @@ class GETAPIKEY(APIView):
             "DBNAME" : os.getenv("DBNAME"),
             "DBUSER" : os.getenv("DBUSER"),
             "DBHOST" : os.getenv("DBHOST"),
-            "DBPASSWORD" : os.getenv("DBPASSWORD")[:2],
             "DBPORT" : os.getenv("DBPORT"),
             "GEMINI_API_KEY" : os.getenv("GOOGLE_API_KEY")[:5],
         }

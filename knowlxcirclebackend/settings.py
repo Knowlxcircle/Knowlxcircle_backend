@@ -32,10 +32,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-print(os.environ.get("DBNAME"))
-print(os.environ.get("DBUSER"))
-print(os.environ.get("DBHOST"))
-print(os.environ.get("DBPORT"))
+
 
 ALLOWED_HOSTS = ["*", "https://knowlxcircleapi.azurewebsites.net/"]
 
@@ -157,10 +154,10 @@ WSGI_APPLICATION = "knowlxcirclebackend.wsgi.application"
 DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": os.getenv("DBNAME"),
-            "USER": os.getenv("DBUSER"),
+            "NAME": "postgres",
+            "USER": "knowlxcircle",
             "PASSWORD": os.getenv("DBPASSWORD"),
-            "HOST": os.getenv("DBHOST"),
+            "HOST": "knowlxcircledb.postgres.database.azure.com",
             "PORT": 5432,
         }
     }
