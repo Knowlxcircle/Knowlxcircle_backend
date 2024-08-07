@@ -32,6 +32,11 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+print(os.environ.get("DBNAME"))
+print(os.environ.get("DBUSER"))
+print(os.environ.get("DBHOST"))
+print(os.environ.get("DBPORT"))
+
 ALLOWED_HOSTS = ["*", "https://knowlxcircleapi.azurewebsites.net/"]
 
 

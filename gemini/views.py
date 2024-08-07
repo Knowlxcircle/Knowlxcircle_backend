@@ -17,7 +17,6 @@ class GETAPIKEY(APIView):
         data_postgres = {
             "DBNAME" : os.environ.get("DBNAME"),
             "DBUSER" : os.environ.get("DBUSER"),
-            "DBPASSWORD" : os.environ.get("DBPASSWORD"),
             "DBHOST" : os.environ.get("DBHOST"),
             "DBPORT" : os.environ.get("DBPORT")
         }
