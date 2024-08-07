@@ -57,7 +57,16 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write # This is required for requesting the JWT
-    
+    env:
+      # Define your environment variables here
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DBNAME: "postgres"
+      DBHOST: "knowlxcircledb.postgres.database.azure.com"
+      DBUSER: "knowlxcircle"
+      DBPASSWORD: ${{ secrets.DBPASSWORD }}
+      DBPORT: "5432"
     
 
     steps:
@@ -82,5 +91,14 @@ jobs:
         with:
           app-name: 'knowlxcircleapi'
           slot-name: 'Production'
-        
+        env:
+      # Define your environment variables here
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DBNAME: "postgres"
+          DBHOST: "knowlxcircledb.postgres.database.azure.com"
+          DBUSER: "knowlxcircle"
+          DBPASSWORD: ${{ secrets.DBPASSWORD }}
+          DBPORT: "5432"
           
