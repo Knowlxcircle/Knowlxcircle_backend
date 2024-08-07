@@ -15,10 +15,10 @@ model = genai.GenerativeModel("gemini-pro")
 class GETAPIKEY(APIView):
     def get(self, request):
         data_postgres = {
-            "DBNAME" : os.environ.get("DBNAME"),
-            "DBUSER" : os.environ.get("DBUSER"),
-            "DBHOST" : os.environ.get("DBHOST"),
-            "DBPORT" : os.environ.get("DBPORT")
+            "DBNAME" : os.getenv("DBNAME"),
+            "DBUSER" : os.getenv("DBUSER"),
+            "DBHOST" : os.getenv("DBHOST"),
+            "DBPORT" : os.getenv("DBPORT")
         }
         
         return Response({
