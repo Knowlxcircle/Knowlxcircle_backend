@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import GenerateSearch, HomePage, ChatPage, ChatPageDetail
+from .views import GenerateSearch, HomePage, ChatPage, ChatPageDetail, GETAPIKEY
 from article.views import SearchArticle
 
 app_name = "gemini"
