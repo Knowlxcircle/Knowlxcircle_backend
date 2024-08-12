@@ -58,8 +58,9 @@ class ArticleSentiment(models.Model):
         return self.article.title
     
 class ArticleCircleAssociate(models.Model):
-    Article = models.ForeignKey(Articles, on_delete=models.CASCADE)
-    Circle = models.ForeignKey(Circle, on_delete=models.CASCADE)
+    article = models.ForeignKey(Articles, on_delete=models.CASCADE)
+    circle = models.ForeignKey(Circle, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.Article.title
+    

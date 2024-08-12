@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Circle, CircleMember, MemberSentiment
 from .serializers import CircleSerializer, CircleMemberSerializer
+from article.models import ArticleCircleAssociate, Articles
 
 # Create your views here.
 class HandleCircle(APIView):
@@ -91,21 +92,27 @@ class LeaveCircle(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 class GetCircle(APIView):
-    def get(self, request):
-        try:
-            circle_id = request.data.get("circle_id")
-            circle = Circle.objects.get(id=circle_id)
-            serializer = CircleSerializer(circle)
+    def get(self, request, id):
+        # try:
+            circle = Circle.objects.get(id=id)
+            serializer = {}
+            serializer = CircleSerializer(circle).data
+            serializer["article"] = []
+            for article in ArticleCircleAssociate.objects.filter(circle=circle):
+                serializer["article"].append({
+                    "id": article.article.id,
+                    "title": article.article.title,
+                })
             return Response({
                 "status": 200,
                 "message": "Success",
-                "response": serializer.data
+                "response": serializer
             }, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({
-                "status": 500,
-                "message": f"Internal Server Error : {e}"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # except Exception as e:
+        #     return Response({
+        #         "status": 500,
+        #         "message": f"Internal Server Error : {e}"
+        #     }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 class GetAllCircle(APIView):
     def get(self, request):
@@ -150,6 +157,27 @@ class GetCircleMembers(APIView):
                 "status": 200,
                 "message": "Success",
                 "response": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": 500,
+                "message": f"Internal Server Error : {e}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+class AssociateCircle(APIView):
+    def post(self, request):
+        try:
+            circle_id = request.data.get("circle_id")
+            article_id = request.data.get("article_id")
+            circle = Circle.objects.get(id=circle_id)
+            article = Articles.objects.get(id=article_id)
+            ArticleCircleAssociate.objects.create(
+                circle=circle,
+                article=article
+            )
+            return Response({
+                "status": 200,
+                "message": "Success"
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({

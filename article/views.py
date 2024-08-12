@@ -270,13 +270,9 @@ class SearchArticle(APIView):
                 keywords_list = [keyword.replace(" ", "") for keyword in keywords_list]
 
                 # Output the result
-                print(keywords_list)
+                keywords_list.append(search_query)
 
-                prompt = Prompt.objects.create(prompt=search_query)
-                prompt_response = GeminiResponse.objects.create(prompt=prompt, response=prompt_response.text)
-                data["prompt"] = prompt.prompt
-                data["response"] = prompt_response.text
-                data["created_at"] = prompt_response.created_at
+                
             except Exception as e:
                 return Response(
                     {
@@ -285,14 +281,24 @@ class SearchArticle(APIView):
                      }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
-            articles = Articles.objects.filter(title__icontains=search_query)
-
-            serializer = ArticleSerializer(articles, many=True)
+            list_article = []
+            set_articles = set()
+            for keyword in keywords_list:
+                article_matches = Articles.objects.filter(title__icontains=keyword)
+                for article in article_matches:
+                    set_articles.add(article)
+            
+            for article in set_articles:
+                article_data = {}
+                article_data["id"] = article.id
+                article_data["title"] = article.title
+                list_article.append(article_data)
+            
             return Response(
                 {
                     "status": 200,
                     "message": "Success",
-                    "response": serializer.data
+                    "response": list_article
                 }, status=status.HTTP_200_OK
             )
         except Exception as e:

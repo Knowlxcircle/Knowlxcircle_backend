@@ -1,5 +1,7 @@
 from django.db import models
+import article.models
 from authentication.models import User
+
 
 # Create your models here.
 class Circle(models.Model):
@@ -27,3 +29,4 @@ class MemberSentiment(models.Model):
     
     def __str__(self):
         return self.sentiment
+    
