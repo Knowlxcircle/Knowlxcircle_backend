@@ -473,7 +473,7 @@ class GetArticles(APIView):
                 sorted_sections = sorted(sections, key=lambda x: x.order)
                 for section in sorted_sections:
                     section_data = SectionSerializer(section).data
-                    article_dict["sections"].appendd(section_data)
+                    article_dict["sections"].append(section_data)
                 for comment in comments:
                     comment_data = CommentSerializer(comment).data
                     article_dict["comments"].append(comment_data)
