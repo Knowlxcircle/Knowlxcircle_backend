@@ -9,5 +9,5 @@ urlpatterns = [
     path("chat/", ChatPage.as_view(), name="chat"),
     path("getapikey", GETAPIKEY.as_view(), name="getapikey"),
     path("chat/<int:id>", ChatPageDetail.as_view(), name="chat"),
-    path("search", SearchArticle.as_view(), name="search_article"),
+    path("search/", SearchArticle.as_view(), name="search_article"),
 ]
