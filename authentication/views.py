@@ -134,7 +134,7 @@ class RegisterMember(APIView):
             return Response(
                 {
                     "status": 201,
-                    "message": "Success",
+                    "message": "Created",
                     "response": {
                         "user": user,
                         "member": member
