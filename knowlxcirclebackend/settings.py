@@ -34,7 +34,7 @@ DEBUG = True
 
 
 
-ALLOWED_HOSTS = ["*", "https://knowlxcircleapi.azurewebsites.net/"]
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 
 # Use the application default credentials.
