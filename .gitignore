@@ -140,3 +140,10 @@ dmypy.json
 .pyre/
 
 .azure
+
+# Django collected static / uploaded media
+staticfiles/
+media/
+
+# Generated dashboard cache
+dashboard/dashboard.json

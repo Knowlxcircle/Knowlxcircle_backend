@@ -9,5 +9,8 @@ class Dashboard(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ("-created_at", "-id")
+
     def __str__(self):
-        return self.name
+        return self.name or f"Dashboard {self.pk}"

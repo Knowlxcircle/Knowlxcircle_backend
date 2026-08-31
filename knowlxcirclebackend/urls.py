@@ -2,34 +2,38 @@
 URL configuration for knowlxcirclebackend project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
 """
 
-from django.http import HttpResponse
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
 from django.http import HttpResponse
-from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import TemplateView
+from django.urls import include, path
+
 import markdown
-from django.shortcuts import render
+
+# Rendering the README on every request is pure waste; it never changes while
+# the process is alive.
+_readme_html = None
+
+
+def _render_readme():
+    readme_path = settings.BASE_DIR / "README.md"
+    try:
+        source = readme_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        # Missing or undecodable README (FileNotFoundError is an OSError):
+        # serve a plain landing page instead of a traceback.
+        return "<h1>Knowlxcircle API</h1><p>The API is running.</p>"
+    return markdown.markdown(source)
+
 
 def markdown_view(request):
-    with open('README.md', 'r') as file:
-        content = file.read()
-    html_content = markdown.markdown(content)
-    return HttpResponse(html_content)
+    global _readme_html
+    if _readme_html is None:
+        _readme_html = _render_readme()
+    return HttpResponse(_readme_html)
 
 
 urlpatterns = [
@@ -41,3 +45,6 @@ urlpatterns = [
     path("api/v1/circle/", include("circle.urls")),
     path("api/v1/article/", include("article.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

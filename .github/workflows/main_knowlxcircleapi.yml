@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Define your environment variables here
-      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DBNAME: "postgres"
@@ -23,31 +23,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 3.12 is the Azure App Service runtime; keep them in lockstep.
       - name: Set up Python version
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
 
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-      
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
+      # Fail the build here rather than discovering it after deployment.
+      - name: Verify Django configuration
+        env:
+          DJANGO_DEBUG: "True"
+          DEVELOPMENT_MODE: "True"
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+
+      # `./*` is shell-globbed and silently drops dotfiles; `.` does not.
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip release.zip . -r -x 'venv/*' '.git/*' '__pycache__/*' '*/__pycache__/*' '*.pyc'
 
       - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -59,7 +65,7 @@ jobs:
       id-token: write # This is required for requesting the JWT
     env:
       # Define your environment variables here
-      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DBNAME: "postgres"
@@ -67,11 +73,10 @@ jobs:
       DBUSER: "knowlxcircle"
       DBPASSWORD: ${{ secrets.DBPASSWORD }}
       DBPORT: "5432"
-    
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: python-app
 
@@ -79,21 +84,21 @@ jobs:
         run: unzip release.zip
 
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5C987B138A514AD6A828123E02E884D5 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3D5B53FF7AED4B16A1A3D171B8BA0349 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B04727CB5FE54B97A5E7DA5A78256C0A }}
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'knowlxcircleapi'
           slot-name: 'Production'
         env:
       # Define your environment variables here
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           DJANGO_API_KEY: ${{ secrets.DJANGO_API_KEY }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DBNAME: "postgres"
@@ -101,4 +106,3 @@ jobs:
           DBUSER: "knowlxcircle"
           DBPASSWORD: ${{ secrets.DBPASSWORD }}
           DBPORT: "5432"
-          
