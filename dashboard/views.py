@@ -22,7 +22,11 @@ logger = logging.getLogger(__name__)
 # payload shape changes so stale entries cannot be served.
 DASHBOARD_CACHE_KEY = "dashboard:overview:v1"
 DEFAULT_CACHE_TTL = 300
-DEFAULT_SENTIMENT_LIMIT = 20
+# Each one is a sequential LLM round-trip inside the request, on top of the
+# explain + recommendation calls. 20 could not finish inside the gunicorn
+# --timeout 120 on a real corpus; the worker was killed before the result
+# was cached, so the next request repeated the whole thing.
+DEFAULT_SENTIMENT_LIMIT = 8
 DEFAULT_EXPLAIN_MAX_CHARS = 4000
 AI_UNAVAILABLE_MESSAGE = "AI insights are temporarily unavailable"
 
@@ -103,6 +107,7 @@ class HandleDashboard(APIView):
 
 
 class GetDashboard(APIView):
+    throttle_scope = "dashboard"
     def get_permissions(self):
         # Deleting an article is destructive, so it always needs a real user.
         if self.request.method == "DELETE":
@@ -184,7 +189,7 @@ class GetDashboard(APIView):
                 try:
                     response = self._sentiment_gemini(article.title, sentiment_memo)
                 except LLMUnavailable:
-                    logger.warning("Gemini unavailable, keeping stored sentiments", exc_info=True)
+                    logger.warning("Model backend unavailable, keeping stored sentiments", exc_info=True)
                     ai_available = False
                 else:
                     analysed += 1
@@ -210,7 +215,7 @@ class GetDashboard(APIView):
             try:
                 explain = generate_text(f"explain {ai_explain}")
             except LLMUnavailable:
-                logger.warning("Gemini unavailable while explaining articles", exc_info=True)
+                logger.warning("Model backend unavailable while explaining articles", exc_info=True)
                 ai_available = False
 
         if ai_available and data_article:
@@ -219,7 +224,7 @@ class GetDashboard(APIView):
                     f"recommend me an article based on {average_views} views"
                 )
             except LLMUnavailable:
-                logger.warning("Gemini unavailable while recommending articles", exc_info=True)
+                logger.warning("Model backend unavailable while recommending articles", exc_info=True)
                 ai_available = False
 
         if not ai_available:

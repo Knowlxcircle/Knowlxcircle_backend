@@ -387,6 +387,7 @@ class HandleComment(APIView):
 
 
 class SearchArticle(APIView):
+    throttle_scope = "llm"
     def get(self, request):
         return self.search(request)
 
@@ -440,7 +441,13 @@ class SearchArticle(APIView):
         except Exception as e:
             return server_error(e, "SearchArticle", [])
 
+# Byline for machine-written articles. The provider is configurable
+# (OPENROUTER_MODEL), so the byline names the role, not a vendor.
+AI_AUTHOR = "AI Assistant"
+
+
 class HandleGeminiArticle(APIView):
+    throttle_scope = "llm"
     def delete(self, request, id=None):
         try:
             if id is None:
@@ -487,7 +494,7 @@ class HandleGeminiArticle(APIView):
             sections = parse_sections(generated_text)
             if not sections:
                 logger.warning(
-                    "Gemini returned nothing usable for %r: %r", article_query, generated_text[:200]
+                    "The model returned nothing usable for %r: %r", article_query, generated_text[:200]
                 )
                 return envelope(
                     status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -501,10 +508,15 @@ class HandleGeminiArticle(APIView):
             #    from inside the block, because a return would commit it.
             try:
                 with transaction.atomic():
-                    prompt = Prompt.objects.create(prompt=article_query[:300])
-                    GeminiResponse.objects.create(prompt=prompt, response=generated_text)
+                    prompt = Prompt.objects.create(prompt=article_query)
+                    # Store the readable article, not the raw JSON array the model
+                    # returned: the home page renders the most recent GeminiResponse
+                    # verbatim, so a raw '["...","..."]' blob would surface there.
+                    GeminiResponse.objects.create(
+                        prompt=prompt, response="\n\n".join(sections)
+                    )
                     article = Articles.objects.create(
-                        title=article_query[:100], author="Gemini AI", published=False
+                        title=article_query[:100], author=AI_AUTHOR, published=False
                     )
                     created_sections = [
                         Section.objects.create(article=article, body=body, order=index)

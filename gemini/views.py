@@ -34,6 +34,7 @@ def _internal_error(exc, context):
 
 
 class GenerateSearch(APIView):
+    throttle_scope = "llm"
 
     def post(self, request):
         # A JSON body that is not an object has no .get(); guard before touching it.
@@ -45,7 +46,7 @@ class GenerateSearch(APIView):
         try:
             generated_text = generate_text(search_query)
         except LLMUnavailable:
-            logger.warning("Gemini unavailable while generating a search response.")
+            logger.warning("The model backend is unavailable while generating a search response.")
             return _envelope(status.HTTP_503_SERVICE_UNAVAILABLE, LLM_UNAVAILABLE_MESSAGE)
 
         try:
@@ -95,6 +96,7 @@ class HomePage(APIView):
 
 
 class ChatPage(APIView):
+    throttle_scope = "llm"
     def get(self, request):
         try:
             responses = GeminiResponse.objects.select_related("prompt").order_by("-created_at")
@@ -121,7 +123,7 @@ class ChatPage(APIView):
         try:
             generated_text = generate_text(chat_query)
         except LLMUnavailable:
-            logger.warning("Gemini unavailable while answering a chat query.")
+            logger.warning("The model backend is unavailable while answering a chat query.")
             return _envelope(status.HTTP_503_SERVICE_UNAVAILABLE, LLM_UNAVAILABLE_MESSAGE)
 
         try:

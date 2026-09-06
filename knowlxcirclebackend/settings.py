@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import quote
 
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
@@ -31,6 +32,17 @@ def env_bool(name, default=False):
         return default
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
+
+
+def env_number(name, default, cast):
+    """Numeric env var that falls back instead of crashing settings import."""
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return cast(raw)
+    except ValueError:
+        return default
 
 def env_csv(name):
     """Read a comma separated environment variable into a list of strings."""
@@ -172,6 +184,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    # Several endpoints call a paid LLM and are reachable anonymously, so an
+    # unthrottled caller is both a cost and an availability problem: the
+    # dashboard rebuild is the slowest request in the app and three concurrent
+    # cold ones occupy every gunicorn worker. Views opt in with throttle_scope.
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.ScopedRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'llm': os.getenv('THROTTLE_RATE_LLM', '20/min'),
+        'dashboard': os.getenv('THROTTLE_RATE_DASHBOARD', '30/min'),
+    },
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -203,7 +226,36 @@ WSGI_APPLICATION = "knowlxcirclebackend.wsgi.application"
 # The driver is psycopg 3 (`psycopg[binary]`), not psycopg2.
 
 DEVELOPMENT_MODE = env_bool("DEVELOPMENT_MODE", False)
-DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+
+
+def _database_url():
+    """DATABASE_URL, or one composed from the discrete DB* variables.
+
+    The GitHub Actions workflow and the Azure app settings export
+    DBNAME/DBUSER/DBPASSWORD/DBHOST/DBPORT rather than a single URL, so without
+    this fallback a correctly-provisioned deployment still dies with
+    ImproperlyConfigured.
+    """
+    url = os.getenv("DATABASE_URL", "").strip()
+    if url:
+        return url
+
+    name = os.getenv("DBNAME", "").strip()
+    host = os.getenv("DBHOST", "").strip()
+    user = os.getenv("DBUSER", "").strip()
+    if not (name and host and user):
+        return ""
+
+    # DBPASS is the spelling in .env.sample; DBPASSWORD is the one CI exports.
+    password = (os.getenv("DBPASSWORD") or os.getenv("DBPASS") or "").strip()
+    port = os.getenv("DBPORT", "").strip() or "5432"
+    return (
+        f"postgres://{quote(user, safe='')}:{quote(password, safe='')}"
+        f"@{host}:{port}/{quote(name, safe='')}"
+    )
+
+
+DATABASE_URL = _database_url()
 
 if DEVELOPMENT_MODE or (not DATABASE_URL and DEBUG):
     DATABASES = {
@@ -214,12 +266,17 @@ if DEVELOPMENT_MODE or (not DATABASE_URL and DEBUG):
     }
 elif DATABASE_URL:
     DATABASES = {
-        "default": dj_database_url.config(conn_max_age=600, conn_health_checks=True),
+        # parse(), not config(): config() re-reads os.environ["DATABASE_URL"] and
+        # would ignore a URL composed from the discrete DB* variables above.
+        "default": dj_database_url.parse(
+            DATABASE_URL, conn_max_age=600, conn_health_checks=True
+        ),
     }
 else:
     raise ImproperlyConfigured(
-        "DATABASE_URL is not set. Export DATABASE_URL, or set DEVELOPMENT_MODE=True "
-        "to use the local sqlite database."
+        "No database configured. Export DATABASE_URL (or the discrete DBNAME / "
+        "DBUSER / DBPASSWORD / DBHOST / DBPORT variables), or set "
+        "DEVELOPMENT_MODE=True to use the local sqlite database."
     )
 
 
@@ -339,8 +396,8 @@ if WEBSITE_HOSTNAME:
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").strip()
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-5-mini").strip() or "openai/gpt-5-mini"
-OPENROUTER_TIMEOUT = float(os.getenv("OPENROUTER_TIMEOUT", "60"))
-OPENROUTER_MAX_RETRIES = int(os.getenv("OPENROUTER_MAX_RETRIES", "2"))
+OPENROUTER_TIMEOUT = env_number("OPENROUTER_TIMEOUT", 60.0, float)
+OPENROUTER_MAX_RETRIES = env_number("OPENROUTER_MAX_RETRIES", 2, int)
 # Optional: credits this app on the OpenRouter leaderboards.
 OPENROUTER_SITE_URL = os.getenv("OPENROUTER_SITE_URL", "").strip()
 OPENROUTER_SITE_NAME = os.getenv("OPENROUTER_SITE_NAME", "Knowlxcircle").strip()

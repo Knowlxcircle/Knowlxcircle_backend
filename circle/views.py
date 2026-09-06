@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.db import IntegrityError
 from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -52,11 +53,23 @@ def _get_circle(circle_id):
 
 
 def _get_or_create(manager, defaults=None, **lookup):
-    """get_or_create that survives duplicate rows left by the old code."""
+    """get_or_create that survives both the old world and the new one.
+
+    MultipleObjectsReturned was the pre-constraint failure (duplicate rows the
+    old code was free to create). IntegrityError is the one the new
+    UniqueConstraints introduce: two concurrent requests can both miss the get
+    and then race on the insert, and the loser must fall back to a read rather
+    than 500.
+    """
     try:
         return manager.get_or_create(defaults=defaults or {}, **lookup)
     except manager.model.MultipleObjectsReturned:
         return manager.filter(**lookup).order_by("id").first(), False
+    except IntegrityError:
+        existing = manager.filter(**lookup).order_by("id").first()
+        if existing is None:
+            raise
+        return existing, False
 
 
 # Create your views here.
